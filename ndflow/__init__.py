@@ -30,11 +30,10 @@ GMM_FILENAME_SUFFIX = "_gmm.pickle"
 MATCH_FILENAME_SUFFIX = "_match.pickle"
 
 
-def estimate(data: np.ndarray,
+def estimate(data: np.ndarray, levels: int = None,
              model_params: params.ModelParams = DEFAULT_MODEL_PARAMS,
              fit_params: params.FitParams = DEFAULT_FIT_PARAMS,
              interactive: bool = False) -> MixtureModel:
-    levels = None
     values, weights = util.quantise(data, levels)
     dpgmm, best_loglik, best_iter, logliks = fit_dpgmm(values, weights, model_params, fit_params)
     gmm = dpgmm.prune()

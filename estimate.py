@@ -18,7 +18,7 @@ def estimate_single(img_path: str, gmm_path: str, background: float = None,
         data = data[data > background]  # Exclude background
 
     print(f"Estimating density for image {img_path}...")
-    gmm = ndflow.estimate(data, model_params, fit_params)
+    gmm = ndflow.estimate(data, model_params=model_params, fit_params=fit_params)
 
     with open(gmm_path, 'wb') as f:
         pickle.dump({'gmm': gmm, 'num_samples': data.size}, f, pickle.HIGHEST_PROTOCOL)
