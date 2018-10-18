@@ -23,7 +23,36 @@ BibTeX entry:
 }
 ```
 
-## Typical Group Normalisation Workflow
+## Dependencies
+- Python 3.6 (not tested with earlier versions)
+- `numpy`
+- `scipy`
+- `SimpleITK` (only for the scripts)
+- `matplotlib` (only for the scripts and if you use the `--interactive` option)
+
+## API Usage
+The most important functionality is made available in the `ndflow` namespace, which includes the 
+following functions (see corresponding docstrings in `ndflow.__init__.py` for details):
+- `ndflow.estimate`: GMM fitting
+- `ndflow.align`: affine alignment between GMMs
+- `ndflow.match`: minimise L2 divergence between GMMs
+- `ndflow.warp`: simulate diffeomorphic flow between two GMM densities
+
+These functions should be used if dealing directly with `numpy` arrays and
+`ndflow.models.mixture.MixtureModel` instances.
+
+## CLI Usage
+We mirror the API with scripts that also handle I/O (with SimpleITK) and workflow-specific tasks 
+like GMM averaging (run them with the `-h` for usage instructions):
+- `estimate.py`: fit GMMs to one or a collection of image files
+- `average.py`: compute an 'average' GMM out of a collection of GMMs
+- `match.py`: match one or a collection of GMMs to a target GMM
+- `warp.py`: transform intensities in one or a collection of images according to the respective 
+matched GMMs
+
+These scripts wrap functions which may also be used programmatically.  
+
+### Group Normalisation
 - `imgs_dir`: Input images directory
 - `gmms_dir`: Directory for the estimated Gaussian mixture models (GMMs)
 - `average_gmm_file`: File path for the average GMM (i.e. 'intensity atlas')
@@ -37,7 +66,7 @@ BibTeX entry:
 > python warp.py <imgs_dir> <matches_dir> <out_imgs_dir>
 ```
 
-## Typical Image-to-Image Normalisation Workflow
+### Image-to-Image Normalisation
 - `src_img_file`: Source image file
 - `tgt_img_file`: Target image file
 - `src_gmm_file`: Source GMM file (in source image directory with `src_img_file` prefix)
