@@ -62,8 +62,8 @@ These scripts wrap functions which may also be used programmatically.
 ```
 > python estimate.py <imgs_dir> <gmms_dir>
 > python average.py <gmms_dir> <average_gmm_file>
-> python match.py <gmms_dir> <average_gmm_file> <matches_dir>
-> python warp.py <imgs_dir> <matches_dir> <out_imgs_dir>
+> python match.py <gmms_dir> <average_gmm_file> -m <matches_dir>
+> python warp.py <imgs_dir> <matches_dir> -o <out_imgs_dir>
 ```
 
 ### Image-to-Image Normalisation
