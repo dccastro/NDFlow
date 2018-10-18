@@ -6,14 +6,6 @@ import ndflow
 from ndflow.models.mixture import MixtureModel
 
 
-def progress_stats(iterable):
-    try:
-        import tqdm
-        return tqdm.tqdm(iterable)
-    except ImportError:
-        return iterable
-
-
 def list_images(imgs_dir):
     import SimpleITK as sitk
 
@@ -28,8 +20,8 @@ def list_images(imgs_dir):
             continue  # Probably not an image file, skip
 
 
-def list_fits(fits_dir):
-    return (filename for filename in os.listdir(fits_dir)
+def list_gmms(gmms_dir):
+    return (filename for filename in os.listdir(gmms_dir)
             if filename.endswith(ndflow.GMM_FILENAME_SUFFIX))
 
 
@@ -39,20 +31,22 @@ def list_matches(matches_dir):
 
 
 def quantise(data, levels: int = None):
-    """
+    """Quantise data into discrete values, similarly to a histogram.
 
     Parameters
     ----------
     data : array_like
         Input data array.
-    levels : int or None
+    levels : int or None, optional
         Number of levels at which to quantise the data. If `None`, data will be cast to `int` and
         integer values in the data range will be used.
 
     Returns
     -------
     values : np.ndarray
+        Values to which `data` was quantised.
     weights : np.ndarray
+        Array of counts of items collapsed into each of the `values`.
     """
     data = np.asarray(data).flatten()
     if levels is None:
@@ -67,6 +61,21 @@ def quantise(data, levels: int = None):
 
 
 def plot_gmm(gmm: MixtureModel, x, values=None, weights=None, ax=None, **kwargs):
+    """Plot a Gaussian mixture model (GMM) density.
+
+    Parameters
+    ----------
+    gmm : ndflow.models.mixture.MixtureModel
+    x : array_like
+        Values at which to evaluate the GMM likelihood.
+    values, weights : np.ndarray, optional
+        Quantised data distribution as computed by `quantise()`. If given, will plot a histogram
+        alongside the GMM density.
+    ax : matplotlib.axes.Axes, optional
+        Axes onto which to draw. Defaults to the current axes.
+    kwargs
+        Keyword arguments passed through to the `plot()` call.
+    """
     import matplotlib.pyplot as plt
 
     if ax is None:
