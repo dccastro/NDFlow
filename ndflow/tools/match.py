@@ -3,7 +3,7 @@ import multiprocessing
 import os
 import pickle
 
-import ndflow
+from ndflow import api
 
 
 def match_single(source_gmm_path: str, target_gmm_path: str, output_path: str):
@@ -13,8 +13,8 @@ def match_single(source_gmm_path: str, target_gmm_path: str, output_path: str):
         target_gmm = pickle.load(f)['gmm']
 
     print(f"Aligning GMM {source_gmm_path} to {target_gmm_path}...")
-    aligned_gmm, alignment = ndflow.align(source_gmm, target_gmm)
-    matched_gmm = ndflow.match(aligned_gmm, target_gmm)
+    aligned_gmm, alignment = api.align(source_gmm, target_gmm)
+    matched_gmm = api.match(aligned_gmm, target_gmm)
 
     with open(output_path, 'wb') as f:
         pickle.dump({'alignment': alignment,
@@ -26,7 +26,7 @@ def match_single(source_gmm_path: str, target_gmm_path: str, output_path: str):
 
 def _gmm_and_match_paths(gmm_filename, gmms_dir, matches_dir):
     gmm_path = os.path.join(gmms_dir, gmm_filename)
-    match_filename = gmm_filename.replace(ndflow.GMM_FILENAME_SUFFIX, ndflow.MATCH_FILENAME_SUFFIX)
+    match_filename = gmm_filename.replace(api.GMM_FILENAME_SUFFIX, api.MATCH_FILENAME_SUFFIX)
     match_path = os.path.join(matches_dir, match_filename)
     return gmm_path, match_path
 
@@ -40,7 +40,7 @@ def match_group(source_gmms_dir: str, target_gmm_path: str, output_dir: str):
 
     def args_generator():
         for gmm_filename in os.listdir(source_gmms_dir):
-            if gmm_filename.endswith(ndflow.GMM_FILENAME_SUFFIX):
+            if gmm_filename.endswith(api.GMM_FILENAME_SUFFIX):
                 source_gmm_path, output_path = \
                     _gmm_and_match_paths(gmm_filename, source_gmms_dir, output_dir)
                 yield source_gmm_path, target_gmm_path, output_path
@@ -49,7 +49,7 @@ def match_group(source_gmms_dir: str, target_gmm_path: str, output_dir: str):
         list(pool.imap_unordered(_match_single, args_generator()))
 
 
-if __name__ == '__main__':
+def main():
     parser = argparse.ArgumentParser(description="NDFlow - density matching")
     parser.add_argument('source',
                         help="source GMM file or directory. If a directory is given, "
@@ -73,3 +73,7 @@ if __name__ == '__main__':
         source_gmms_dir = args.source
         output_dir = source_gmms_dir if args.output is None else args.output
         match_group(source_gmms_dir, target_gmm_path, output_dir)
+
+
+if __name__ == '__main__':
+    main()

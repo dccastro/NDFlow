@@ -5,20 +5,20 @@ import pickle
 
 import SimpleITK as sitk
 
-import ndflow
+from ndflow import api
 from ndflow.estimation import params
 
 
 def estimate_single(img_path: str, gmm_path: str, background: float = None,
-                    model_params: params.ModelParams = ndflow.DEFAULT_MODEL_PARAMS,
-                    fit_params: params.FitParams = ndflow.DEFAULT_FIT_PARAMS):
+                    model_params: params.ModelParams = api.DEFAULT_MODEL_PARAMS,
+                    fit_params: params.FitParams = api.DEFAULT_FIT_PARAMS):
     img = sitk.ReadImage(img_path)
     data = sitk.GetArrayFromImage(img)
     if background is not None:
         data = data[data > background]  # Exclude background
 
     print(f"Estimating density for image {img_path}...")
-    gmm = ndflow.estimate(data, model_params=model_params, fit_params=fit_params)
+    gmm = api.estimate(data, model_params=model_params, fit_params=fit_params)
 
     with open(gmm_path, 'wb') as f:
         pickle.dump({'gmm': gmm, 'num_samples': data.size}, f, pickle.HIGHEST_PROTOCOL)
@@ -29,7 +29,7 @@ def estimate_single(img_path: str, gmm_path: str, background: float = None,
 
 def _img_and_gmm_paths(img_filename, imgs_dir, gmms_dir):
     img_path = os.path.join(imgs_dir, img_filename)
-    gmm_path = os.path.join(gmms_dir, img_filename + ndflow.GMM_FILENAME_SUFFIX)
+    gmm_path = os.path.join(gmms_dir, img_filename + api.GMM_FILENAME_SUFFIX)
     return img_path, gmm_path
 
 
@@ -45,8 +45,8 @@ def _estimate_single(args):
 
 
 def estimate_group(imgs_dir: str, gmms_dir: str, background: float,
-                   model_params: params.ModelParams = ndflow.DEFAULT_MODEL_PARAMS,
-                   fit_params: params.FitParams = ndflow.DEFAULT_FIT_PARAMS):
+                   model_params: params.ModelParams = api.DEFAULT_MODEL_PARAMS,
+                   fit_params: params.FitParams = api.DEFAULT_FIT_PARAMS):
     os.makedirs(gmms_dir, exist_ok=True)
 
     def args_generator():
@@ -58,7 +58,7 @@ def estimate_group(imgs_dir: str, gmms_dir: str, background: float,
         list(pool.imap_unordered(_estimate_single, args_generator()))
 
 
-if __name__ == '__main__':
+def main():
     parser = argparse.ArgumentParser(description="NDFlow - density estimation")
     parser.add_argument('input',
                         help="input image file or directory. If a directory is given, "
@@ -81,3 +81,7 @@ if __name__ == '__main__':
     else:
         imgs_dir = args.input
         estimate_group(imgs_dir, gmms_dir, args.background)
+
+
+if __name__ == '__main__':
+    main()

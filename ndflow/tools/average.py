@@ -4,13 +4,13 @@ import pickle
 
 import numpy as np
 
-import ndflow
+from ndflow import api
 from ndflow.estimation.fit import fit_dpgmm
 from ndflow.matching import affine
 from ndflow.util import plot_gmm
 
 
-def _get_range(gmm: ndflow.MixtureModel):
+def _get_range(gmm: api.MixtureModel):
     low = min(comp.mu - 3. / np.sqrt(comp.tau) for comp in gmm.components)
     high = max(comp.mu + 3. / np.sqrt(comp.tau) for comp in gmm.components)
     return low, high
@@ -21,7 +21,7 @@ def average_gmms(input_gmms_dir: str, output_gmm_path: str, interactive: bool = 
 
     def gmm_loader():
         for gmm_filename in os.listdir(input_gmms_dir):
-            if gmm_filename.endswith(ndflow.GMM_FILENAME_SUFFIX):
+            if gmm_filename.endswith(api.GMM_FILENAME_SUFFIX):
                 gmm_path = os.path.join(input_gmms_dir, gmm_filename)
                 with open(gmm_path, 'rb') as f:
                     yield pickle.load(f)
@@ -43,8 +43,8 @@ def average_gmms(input_gmms_dir: str, output_gmm_path: str, interactive: bool = 
     pseudo_hist = np.asarray(nums_samples) @ liks
 
     # Fit 'average' GMM to average pseudo-histogram
-    avg_gmm = fit_dpgmm(values, pseudo_hist, ndflow.DEFAULT_MODEL_PARAMS,
-                        ndflow.DEFAULT_FIT_PARAMS)[0].prune()
+    avg_gmm = fit_dpgmm(values, pseudo_hist, api.DEFAULT_MODEL_PARAMS,
+                        api.DEFAULT_FIT_PARAMS)[0].prune()
 
     with open(output_gmm_path, 'wb') as f:
         pickle.dump({'gmm': avg_gmm, 'num_samples': pseudo_hist.sum()}, f, pickle.HIGHEST_PROTOCOL)
@@ -57,7 +57,7 @@ def average_gmms(input_gmms_dir: str, output_gmm_path: str, interactive: bool = 
         plt.show()
 
 
-if __name__ == '__main__':
+def main():
     parser = argparse.ArgumentParser(description="NDFlow - GMM averaging")
     parser.add_argument('input',
                         help="input GMMs directory")
@@ -71,3 +71,7 @@ if __name__ == '__main__':
     output_gmm_path = args.output
 
     average_gmms(input_gmms_dir, output_gmm_path, args.interactive)
+
+
+if __name__ == '__main__':
+    main()

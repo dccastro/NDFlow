@@ -5,7 +5,7 @@ import pickle
 
 import SimpleITK as sitk
 
-import ndflow
+from ndflow import api
 
 
 def warp_single(input_img_path: str, match_path: str, ouput_img_path: str):
@@ -21,7 +21,7 @@ def warp_single(input_img_path: str, match_path: str, ouput_img_path: str):
 
     print(f"Warping image {input_img_path}...")
     aligned_data = alignment(data)
-    warped_data = ndflow.warp(aligned_data, aligned_gmm, matched_gmm)
+    warped_data = api.warp(aligned_data, aligned_gmm, matched_gmm)
 
     warped_img = sitk.GetImageFromArray(warped_data)
     warped_img.CopyInformation(img)
@@ -31,7 +31,7 @@ def warp_single(input_img_path: str, match_path: str, ouput_img_path: str):
 
 def _input_match_and_output_paths(img_filename, input_imgs_dir, matches_dir, output_imgs_dir):
     input_img_path = os.path.join(input_imgs_dir, img_filename)
-    match_path = os.path.join(matches_dir, img_filename + ndflow.MATCH_FILENAME_SUFFIX)
+    match_path = os.path.join(matches_dir, img_filename + api.MATCH_FILENAME_SUFFIX)
     output_img_path = os.path.join(output_imgs_dir, img_filename)
     return input_img_path, match_path, output_img_path
 
@@ -56,7 +56,7 @@ def warp_group(input_imgs_dir: str, matches_dir: str, output_imgs_dir: str):
         list(pool.imap_unordered(_warp_single, args_generator()))
 
 
-if __name__ == '__main__':
+def main():
     parser = argparse.ArgumentParser(description="NDFlow - image intensity warping")
     parser.add_argument('input',
                         help="input image file or directory. If a directory is given, "
@@ -81,3 +81,7 @@ if __name__ == '__main__':
         input_imgs_dir = args.input
         matches_dir = input_imgs_dir if args.match is None else args.match
         warp_group(input_imgs_dir, matches_dir, output_imgs_dir)
+
+
+if __name__ == '__main__':
+    main()
