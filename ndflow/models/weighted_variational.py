@@ -1,7 +1,7 @@
 import numpy as np
 
 from .base import BaseMixture
-from ..dist import normal
+from ..distributions import normal
 
 
 class WeightedVariationalDPGMM(BaseMixture):

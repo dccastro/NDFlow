@@ -1,5 +1,5 @@
 from ._flow_base import GMMFlowBase
-from ..dist import normal
+from ..distributions import normal
 from ..models.mixture import MixtureModel
 
 

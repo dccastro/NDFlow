@@ -75,7 +75,7 @@ class GMMFlowBase(FlowBase):
 
 
 def interp_gmm(gmm1: MixtureModel, gmm2: MixtureModel, s: float):
-    from ..dist import normal
+    from ..distributions import normal
     weights_ = (1 - s) * gmm1.assignment_probs() + s * gmm2.assignment_probs()
     components_ = [normal.Normal((1 - s) * t1.mu + s * t2.mu, (1 - s) * t1.tau + s * t2.tau)
                    for t1, t2 in zip(gmm1.components, gmm2.components)]

@@ -1,7 +1,7 @@
 import numpy as np
 from scipy import special
 
-from ..dist import normal, sbp, stats
+from ..distributions import normal, sbp, stats
 from ..models.weighted_variational import WeightedVariationalDPGMM
 
 

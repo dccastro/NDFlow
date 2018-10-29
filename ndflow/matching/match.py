@@ -5,7 +5,7 @@ import numpy as np
 
 from . import _means, _precs, _weights
 from .divergences import GMML2Norm, GMML2Product, cauchy_schwartz, l2
-from ..dist.normal import Normal
+from ..distributions.normal import Normal
 from ..models.mixture import MixtureModel
 
 

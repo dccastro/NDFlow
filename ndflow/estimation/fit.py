@@ -5,7 +5,7 @@ from typing import List
 import numpy as np
 
 from . import weighted_variational
-from ..dist import normal
+from ..distributions import normal
 from ..models.weighted_variational import WeightedVariationalDPGMM
 
 
