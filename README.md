@@ -53,7 +53,7 @@ These functions should be used if dealing directly with `numpy` arrays and
 ## CLI Usage
 
 We mirror the API with scripts that also handle I/O (with SimpleITK) and workflow-specific tasks 
-like GMM averaging (run them with the `-h` for usage instructions), available in the `ndflow.tools`
+like GMM averaging, available in the `ndflow.tools`
  package:
 
 - `estimate.py`: fit GMMs to one or a collection of image files
@@ -65,8 +65,78 @@ matched GMMs
 These scripts wrap functions which may also be used programmatically.
 
 If `ndflow` is installed with `pip`, these scripts are directly accessible as terminal commands: 
-`ndflow-estimate`, `ndflow-average`, `ndflow-match`, and `ndflow-warp`, respectively.
-    
+`ndflow-estimate`, `ndflow-average`, `ndflow-match`, and `ndflow-warp`, respectively. These are 
+the usage instructions as obtained with the `-h` option:
+
+```
+usage: ndflow-estimate [-h] [-b BACKGROUND] [-l LEVELS] input output
+
+NDFlow - density estimation
+
+positional arguments:
+  input                 input image file or directory. If a directory is
+                        given, will process all image files inside it.
+  output                output directory to store density estimation results
+                        (*.pickle).
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -b BACKGROUND, --background BACKGROUND
+                        threshold for background intensities. If given, voxels
+                        with intensity <= background will be excluded,
+                        otherwise the entire image will be used.
+  -l LEVELS, --levels LEVELS
+                        number of levels at which to quantise the intensities.
+                        If omitted, data will be cast to integer.
+```
+
+```
+usage: ndflow-average [-h] [-i] input output
+
+NDFlow - GMM averaging
+
+positional arguments:
+  input              input GMMs directory
+  output             output GMM file
+
+optional arguments:
+  -h, --help         show this help message and exit
+  -i, --interactive  plot the results
+```
+
+```
+usage: ndflow-match [-h] [-o OUTPUT] source target
+
+NDFlow - density matching
+
+positional arguments:
+  source                source GMM file or directory. If a directory is given,
+                        will process all GMM files inside it.
+  target                target GMM file
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -o OUTPUT, --output OUTPUT
+                        output directory. Defaults to source directory.
+```
+
+```
+usage: ndflow-warp [-h] [-m MATCH] input output
+
+NDFlow - image intensity warping
+
+positional arguments:
+  input                 input image file or directory. If a directory is
+                        given, will process all image files inside it.
+  output                output image directory. Should be different from input
+                        directory, as normalised image(s) will be saved with
+                        the same filename.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -m MATCH, --match MATCH
+                        matches directory. Defaults to input image directory.
+```
 
 ### Group Normalisation
 
