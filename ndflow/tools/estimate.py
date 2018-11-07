@@ -9,7 +9,7 @@ from ndflow import api
 from ndflow.estimation import params
 
 
-def estimate_single(img_path: str, gmm_path: str, background: float = None,
+def estimate_single(img_path: str, gmm_path: str, background: float = None, levels: int = None,
                     model_params: params.ModelParams = api.DEFAULT_MODEL_PARAMS,
                     fit_params: params.FitParams = api.DEFAULT_FIT_PARAMS):
     img = sitk.ReadImage(img_path)
@@ -18,7 +18,7 @@ def estimate_single(img_path: str, gmm_path: str, background: float = None,
         data = data[data > background]  # Exclude background
 
     print(f"Estimating density for image {img_path}...")
-    gmm = api.estimate(data, model_params=model_params, fit_params=fit_params)
+    gmm = api.estimate(data, levels=levels, model_params=model_params, fit_params=fit_params)
 
     with open(gmm_path, 'wb') as f:
         pickle.dump({'gmm': gmm, 'num_samples': data.size}, f, pickle.HIGHEST_PROTOCOL)
@@ -35,16 +35,16 @@ def _img_and_gmm_paths(img_filename, imgs_dir, gmms_dir):
 
 def _estimate_single(args):
     try:
-        img_filename, imgs_dir, gmms_dir, background, model_params, fit_params = args
+        img_filename, imgs_dir, gmms_dir, background, levels, model_params, fit_params = args
         img_path, gmm_path = _img_and_gmm_paths(img_filename, imgs_dir, gmms_dir)
-        return estimate_single(img_path, gmm_path, background, model_params, fit_params)
+        return estimate_single(img_path, gmm_path, background, levels, model_params, fit_params)
     except RuntimeError as e:  # SimpleITK throws generic runtime exceptions
         # Probably not an image file, skip
         print(e)
         return None
 
 
-def estimate_group(imgs_dir: str, gmms_dir: str, background: float,
+def estimate_group(imgs_dir: str, gmms_dir: str, background: float, levels: int = None,
                    model_params: params.ModelParams = api.DEFAULT_MODEL_PARAMS,
                    fit_params: params.FitParams = api.DEFAULT_FIT_PARAMS):
     os.makedirs(gmms_dir, exist_ok=True)
@@ -52,7 +52,8 @@ def estimate_group(imgs_dir: str, gmms_dir: str, background: float,
     def args_generator():
         for img_filename in os.listdir(imgs_dir):
             if os.path.isfile(os.path.join(imgs_dir, img_filename)):
-                yield img_filename, imgs_dir, gmms_dir, background, model_params, fit_params
+                yield (img_filename, imgs_dir, gmms_dir, background, levels,
+                       model_params, fit_params)
 
     with multiprocessing.Pool() as pool:
         list(pool.imap_unordered(_estimate_single, args_generator()))
@@ -69,6 +70,9 @@ def main():
                         help="threshold for background intensities. If given, voxels with "
                              "intensity <= background will be excluded, otherwise the entire "
                              "image will be used.")
+    parser.add_argument('-l', '--levels', type=int,
+                        help="number of levels at which to quantise the intensities. If omitted, "
+                             "data will be cast to integer.")
     args = parser.parse_args()
 
     single = os.path.isfile(args.input)
